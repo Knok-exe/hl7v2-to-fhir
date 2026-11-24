@@ -1,0 +1,9 @@
+MSH|^~\&|LABSYS|GENERALHOSP|EHR|GENERALHOSP|20240117090000||ORU^R01^ORU_R01|MSG00005|P|2.5.1
+PID|1||100235^^^GENERALHOSP&2.16.840.1.113883.19.5&ISO^MR||Sample\S\Escape^Jordan||19800102|F|||12 Example Street^Apt 4^Springfield^IL^62701^USA^H||(555)555-0100^PRN^PH
+OBR|1|ORD5530^EHR|LAB9990^LABSYS|630-4^Bacteria identified in Urine by Culture^LN|||20240117081500||||||||||||||||||P
+OBX|1|CWE|630-4^Bacteria identified^LN||112283007^Escherichia coli^SCT~3092008^Staphylococcus aureus^SCT||||||P
+OBX|2|TX|18725-2^Microbiology comment^LN||Growth \F\ colony count >100,000\.br\Repeat if symptoms persist \T\ review.||||||P
+OBX|3|NM|1988-5^C reactive protein^LN||<5|mg/L^^UCUM|||||F
+OBX|4|SN|2160-0^Creatinine^LN||>^1.9|mg/dL^^UCUM|||||F
+OBR|2|ORD5531^EHR|LAB9991^LABSYS|5778-6^Color of Urine^LN|||20240117081500||||||||||||||||||F
+OBX|1|ST|5778-6^Color of Urine^LN||Yellow||||||F

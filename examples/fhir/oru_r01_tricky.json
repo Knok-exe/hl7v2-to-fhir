@@ -1,0 +1,463 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0",
+      "resource": {
+        "resourceType": "Patient",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.19.5",
+            "value": "100235",
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            }
+          }
+        ],
+        "name": [
+          {
+            "family": "Sample^Escape",
+            "given": [
+              "Jordan"
+            ]
+          }
+        ],
+        "birthDate": "1980-01-02",
+        "gender": "female",
+        "address": [
+          {
+            "line": [
+              "12 Example Street",
+              "Apt 4"
+            ],
+            "city": "Springfield",
+            "state": "IL",
+            "postalCode": "62701",
+            "country": "USA",
+            "use": "home"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "(555)555-0100",
+            "use": "home"
+          }
+        ],
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient?identifier=urn%3Aoid%3A2.16.840.1.113883.19.5%7C100235"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:3db7332c-3ab4-5db6-b6de-1144049148a5",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "system": "urn:id:GENERALHOSP/obx",
+            "value": "LAB9990/1#1"
+          }
+        ],
+        "status": "preliminary",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "630-4",
+              "display": "Bacteria identified"
+            }
+          ],
+          "text": "Bacteria identified"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "112283007",
+              "display": "Escherichia coli"
+            }
+          ],
+          "text": "Escherichia coli"
+        },
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation?identifier=urn%3Aid%3AGENERALHOSP%2Fobx%7CLAB9990%2F1%231"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:a8ca9b01-67b1-57a6-b69c-8d8efa1b14eb",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "system": "urn:id:GENERALHOSP/obx",
+            "value": "LAB9990/1#2"
+          }
+        ],
+        "status": "preliminary",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "630-4",
+              "display": "Bacteria identified"
+            }
+          ],
+          "text": "Bacteria identified"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3092008",
+              "display": "Staphylococcus aureus"
+            }
+          ],
+          "text": "Staphylococcus aureus"
+        },
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation?identifier=urn%3Aid%3AGENERALHOSP%2Fobx%7CLAB9990%2F1%232"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:78e96e5f-1d62-5fa7-9ce0-987dd18c4899",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "system": "urn:id:GENERALHOSP/obx",
+            "value": "LAB9990/2"
+          }
+        ],
+        "status": "preliminary",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "18725-2",
+              "display": "Microbiology comment"
+            }
+          ],
+          "text": "Microbiology comment"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "valueString": "Growth | colony count >100,000\nRepeat if symptoms persist & review.",
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation?identifier=urn%3Aid%3AGENERALHOSP%2Fobx%7CLAB9990%2F2"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:75ac1edd-e810-5137-8be0-8714a3f00bf0",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "system": "urn:id:GENERALHOSP/obx",
+            "value": "LAB9990/3"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1988-5",
+              "display": "C reactive protein"
+            }
+          ],
+          "text": "C reactive protein"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "valueQuantity": {
+          "value": 5,
+          "comparator": "<",
+          "unit": "mg/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/L"
+        },
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation?identifier=urn%3Aid%3AGENERALHOSP%2Fobx%7CLAB9990%2F3"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:dc24d320-d8e9-5e72-865e-ef767a2864a0",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "system": "urn:id:GENERALHOSP/obx",
+            "value": "LAB9990/4"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2160-0",
+              "display": "Creatinine"
+            }
+          ],
+          "text": "Creatinine"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "valueQuantity": {
+          "value": 1.9,
+          "comparator": ">",
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        },
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation?identifier=urn%3Aid%3AGENERALHOSP%2Fobx%7CLAB9990%2F4"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:5e3232d3-1012-5054-9fd4-438eb78239ed",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "identifier": [
+          {
+            "system": "urn:id:LABSYS",
+            "value": "LAB9990",
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FILL"
+                }
+              ]
+            }
+          }
+        ],
+        "status": "preliminary",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "630-4",
+              "display": "Bacteria identified in Urine by Culture"
+            }
+          ],
+          "text": "Bacteria identified in Urine by Culture"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "result": [
+          {
+            "reference": "urn:uuid:3db7332c-3ab4-5db6-b6de-1144049148a5"
+          },
+          {
+            "reference": "urn:uuid:a8ca9b01-67b1-57a6-b69c-8d8efa1b14eb"
+          },
+          {
+            "reference": "urn:uuid:78e96e5f-1d62-5fa7-9ce0-987dd18c4899"
+          },
+          {
+            "reference": "urn:uuid:75ac1edd-e810-5137-8be0-8714a3f00bf0"
+          },
+          {
+            "reference": "urn:uuid:dc24d320-d8e9-5e72-865e-ef767a2864a0"
+          }
+        ],
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "DiagnosticReport?identifier=urn%3Aid%3ALABSYS%7CLAB9990"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:bbc87ee8-2ad5-5393-9401-ccbf95fd72e9",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "system": "urn:id:GENERALHOSP/obx",
+            "value": "LAB9991/1"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5778-6",
+              "display": "Color of Urine"
+            }
+          ],
+          "text": "Color of Urine"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "valueString": "Yellow",
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation?identifier=urn%3Aid%3AGENERALHOSP%2Fobx%7CLAB9991%2F1"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:70b809ba-e63b-5048-812d-696b13d48534",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "identifier": [
+          {
+            "system": "urn:id:LABSYS",
+            "value": "LAB9991",
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FILL"
+                }
+              ]
+            }
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5778-6",
+              "display": "Color of Urine"
+            }
+          ],
+          "text": "Color of Urine"
+        },
+        "subject": {
+          "reference": "urn:uuid:f3303436-5b4e-5ca6-9ac9-1c2a6a0a67b0"
+        },
+        "effectiveDateTime": "2024-01-17T08:15:00Z",
+        "result": [
+          {
+            "reference": "urn:uuid:bbc87ee8-2ad5-5393-9401-ccbf95fd72e9"
+          }
+        ],
+        "meta": {
+          "source": "urn:id:message/MSG00005",
+          "tag": [
+            {
+              "system": "urn:id:hl7v2-to-fhir",
+              "code": "synthetic-test-data"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "DiagnosticReport?identifier=urn%3Aid%3ALABSYS%7CLAB9991"
+      }
+    }
+  ]
+}

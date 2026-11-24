@@ -1,0 +1,7 @@
+MSH|^~\&|LABSYS|GENERALHOSP|EHR|GENERALHOSP|20240116064500||ORU^R01^ORU_R01|MSG00004|P|2.5.1
+PID|1||100234^^^GENERALHOSP&2.16.840.1.113883.19.5&ISO^MR||Testpatient^Alex^Quinn^^^^L||19800102|F|||12 Example Street^Apt 4^Springfield^IL^62701^USA^H||(555)555-0100^PRN^PH
+OBR|1|ORD5521^EHR|LAB9981^LABSYS|51990-0^Basic metabolic panel^LN|||20240116060000|||||||||||||||20240116064000||LAB|F
+OBX|1|NM|2951-2^Sodium [Moles/volume] in Serum or Plasma^LN||141|mmol/L^^UCUM|136-145|N|||F|||20240116060000
+OBX|2|NM|2823-3^Potassium [Moles/volume] in Serum or Plasma^LN||5.4|mmol/L^^UCUM|3.5-5.1|H|||F|||20240116060000
+OBX|3|NM|2345-7^Glucose [Mass/volume] in Serum or Plasma^LN||92|mg/dL^^UCUM|70-99|N|||F|||20240116060000
+NTE|1||Specimen slightly hemolyzed.

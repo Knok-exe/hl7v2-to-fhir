@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hl7v2-to-fhir"
+version = "0.1.0"
+description = "HL7 v2 (ADT, ORU, SIU, ORM) to FHIR R4 converter with an MLLP listener, ACKs and a dead-letter queue. Synthetic messages only."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Knok-exe" }]
+dependencies = ["requests>=2.31"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+hl7-fhir = "hl7_fhir.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hl7_fhir"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PERF", "DTZ"]
+# Readability over micro-optimisation: the validator's explicit "if bad: append" loops and the
+# MLLP decode fallback read better than the comprehension/ternary forms these rules suggest.
+ignore = ["PERF401", "PERF203", "SIM108"]
