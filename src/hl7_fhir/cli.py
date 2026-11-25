@@ -14,7 +14,7 @@ from . import __version__
 from .convert import SUPPORTED
 from .mllp import MllpServer, send_message
 from .parser import split_messages
-from .pipeline import Pipeline
+from .pipeline import Pipeline, wait_for_server
 
 TZ = re.compile(r"^(Z|[+-]((0\d|1[0-3]):[0-5]\d|14:00))$")
 
@@ -58,6 +58,13 @@ def build_parser() -> argparse.ArgumentParser:
     ls = sub.add_parser("listen", help="run an MLLP listener")
     ls.add_argument("--host", default="127.0.0.1")
     ls.add_argument("--port", type=int, default=2575)
+    ls.add_argument(
+        "--wait",
+        type=float,
+        default=0,
+        metavar="SECONDS",
+        help="with --post, wait up to this long for the FHIR server to answer before listening",
+    )
     _common(ls)
     s = sub.add_parser("send", help="send a file to an MLLP listener and print the ACK")
     s.add_argument("file")
@@ -112,6 +119,15 @@ def _cmd_listen(args: argparse.Namespace) -> int:
     logging.getLogger("hl7_fhir").addHandler(handler)
     logging.getLogger("hl7_fhir").setLevel(logging.INFO)
     pipeline = Pipeline(args.out, args.dead_letter, args.post, args.assume_tz)
+    if args.post and args.wait > 0:
+        print(f"Waiting up to {args.wait:g}s for {args.post} ...", flush=True)
+        if not wait_for_server(args.post, args.wait):
+            print(
+                f"warning: {args.post} did not answer; listening anyway. Messages that can't be "
+                "posted will be dead-lettered.",
+                file=sys.stderr,
+                flush=True,
+            )
     with MllpServer((args.host, args.port), pipeline.handle_mllp) as server:
         host, port = server.server_address[:2]
         print(
@@ -129,7 +145,16 @@ def _cmd_listen(args: argparse.Namespace) -> int:
 def _cmd_send(args: argparse.Namespace) -> int:
     text = Path(args.file).read_text(encoding="utf-8-sig")
     for raw in split_messages(text) or [text]:
-        print(send_message(args.host, args.port, raw).replace("\r", "\n").strip())
+        try:
+            ack = send_message(args.host, args.port, raw)
+        except OSError as exc:  # refused, timed out, closed early
+            print(
+                f"Could not get an ACK from {args.host}:{args.port}: {exc}. "
+                "Is `hl7-fhir listen` running?",
+                file=sys.stderr,
+            )
+            return 1
+        print(ack.replace("\r", "\n").strip())
     return 0
 
 

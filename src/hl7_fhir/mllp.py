@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import socket
 import socketserver
+import uuid
 from collections.abc import Callable
 from datetime import datetime, timezone
 
@@ -66,6 +67,8 @@ def build_ack(raw: str, code: str, text: str = "") -> str:
 
     sending_app, sending_fac = field(3).split("^")[0], field(4).split("^")[0]
     control = field(10)
+    processing_id = field(11).split("^")[0] or "P"  # echo P/T/D so test traffic stays test
+    version = field(12).split("^")[0] or "2.5.1"
     mtype = field(9).split("^")
     event = mtype[1] if len(mtype) > 1 else ""
     now = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
@@ -79,9 +82,9 @@ def build_ack(raw: str, code: str, text: str = "") -> str:
         now,
         "",
         f"ACK^{event}" if event else "ACK",
-        f"ACK{now}",
-        "P",
-        "2.5.1",
+        f"ACK{uuid.uuid4().hex[:17]}",  # MSH-10 must be unique; 20 chars max in v2.5.1
+        processing_id,
+        version,
     ]
     msa = ["MSA", code, control or "UNKNOWN"]
     if text:

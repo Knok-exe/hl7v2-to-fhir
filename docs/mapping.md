@@ -2,6 +2,17 @@
 
 Every message becomes one FHIR R4 **transaction Bundle**. Each resource is a conditional
 `PUT Resource?identifier=system|value`, so re-sending a message updates instead of duplicating.
+
+**Patient is the exception.** Only ADT messages `PUT` the Patient. ORU, SIU and ORM send it as a
+conditional create (`POST Patient` with `ifNoneExist: identifier=system|value`): the server
+creates the patient if it is new and otherwise leaves the stored record alone. Lab, scheduling
+and order feeds often carry a thin PID (MRN and name only), and a full-replace `PUT` from one of
+them would erase the address, phone and birth date the ADT feed stored.
+
+**A `PUT` replaces the whole resource**, so the last message processed wins. If an A08 that
+lacks PV1-45 is processed after the A03 for the same visit (out of order, or replayed from the
+dead-letter folder), the Encounter goes back to `in-progress` with no end time. Real interface
+engines guard against this with message sequencing; this demo does not.
 Bundle `fullUrl`s are `urn:uuid` values derived deterministically (uuid5) from the identifier,
 so the same patient gets the same id in every message. Every resource is tagged
 `synthetic-test-data` and carries `meta.source = urn:id:message/<MSH-10>`.
@@ -37,7 +48,7 @@ Anything else is rejected with `UnsupportedMessage` (ACK `AR`) and dead-lettered
 | PV1-36 | hospitalization.dischargeDisposition | |
 | PV1-44 / PV1-45 | period.start / period.end | |
 | OBR-4 | DiagnosticReport.code / ServiceRequest.code | required |
-| OBR-7, OBR-22 | effective / issued | |
+| OBR-7, OBR-22 | effective / issued | `issued` is a FHIR instant: an OBR-22 with no time is omitted with a warning |
 | OBR-25 | DiagnosticReport.status | F final, P preliminary, C corrected, X cancelled |
 | OBX-2 / OBX-5 | Observation.value[x] | NM, SN, ST, TX, FT, CE, CWE, CNE, DT, TS, DTM |
 | OBX-6 | valueQuantity unit | `UCUM` as third component also sets `system`/`code` |
@@ -46,7 +57,7 @@ Anything else is rejected with `UnsupportedMessage` (ACK `AR`) and dead-lettered
 | OBX-11 | status | F, P, C, X, W; unmapped → `unknown` + warning |
 | NTE | note / conclusion | after OBX → Observation.note; after OBR → report conclusion |
 | SCH-1/2 | Appointment.identifier | derived from MSH-10 with a warning if absent |
-| SCH-11 | start / end | or duration in minutes from SCH-9/10 |
+| SCH-11 | start / end | or duration in minutes from SCH-9/10; FHIR instants, so a date-only start is an error (AE) |
 | SCH-25 | status | |
 | AIS-3 | serviceType | |
 | AIP-3, AIL-3 | participant | |

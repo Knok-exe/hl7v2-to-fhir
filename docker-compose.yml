@@ -1,26 +1,23 @@
 # One command: docker compose up
 # Starts a local HAPI FHIR server and the converter's MLLP listener (port 2575).
 # Messages sent to 2575 are converted, written to ./out and POSTed to HAPI.
-# Synthetic data only. HAPI here is an unauthenticated demo server: do not expose it.
+# Synthetic data only. HAPI here is an unauthenticated demo server: both ports are bound to
+# 127.0.0.1 so nothing is reachable from other machines.
+#
+# No Docker healthcheck on HAPI: its image is distroless (no shell, no curl), so a curl-based
+# check can never pass. Instead the converter itself waits (--wait) for HAPI's /metadata.
 services:
   hapi:
-    image: hapiproject/hapi:latest
+    image: hapiproject/hapi:v8.8.0-1
     ports:
-      - "8080:8080"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/fhir/metadata > /dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 40s
+      - "127.0.0.1:8080:8080"
   converter:
     build: .
     depends_on:
-      hapi:
-        condition: service_healthy
+      - hapi
     ports:
       - "127.0.0.1:2575:2575"
     volumes:
       - ./out:/data/out
       - ./dead_letter:/data/dead_letter
-    command: ["listen", "--host", "0.0.0.0", "--post", "http://hapi:8080/fhir"]
+    command: ["listen", "--host", "0.0.0.0", "--post", "http://hapi:8080/fhir", "--wait", "180"]
