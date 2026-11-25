@@ -1,5 +1,8 @@
 """HL7 v2 -> FHIR R4. Each supported message becomes a transaction Bundle of conditional
 updates (PUT Resource?identifier=...), so replaying a message updates rather than duplicates.
+The exception is the Patient in non-ADT messages: it is a conditional *create*, because a
+lab/scheduling/order feed often sends a thin PID and a PUT would wipe the demographics the
+ADT feed stored.
 Resource ids are not set; entries reference each other through urn:uuid fullUrls derived
 deterministically from identifiers (uuid5), so output is reproducible."""
 
@@ -65,7 +68,14 @@ class Builder:
     def ts(self, text: str) -> str | None:
         return ts_to_fhir(text, self.opts.assume_tz)
 
-    def add(self, resource: dict, identifier: dict) -> str:
+    def instant(self, text: str, where: str) -> str | None:
+        """FHIR `instant` needs date, time and offset; a date-only HL7 value is an error."""
+        value = self.ts(text)
+        if value and "T" not in value:
+            raise ConversionError(f"{where} needs a time of day, got {text!r}")
+        return value
+
+    def add(self, resource: dict, identifier: dict, create_only: bool = False) -> str:
         rtype = resource["resourceType"]
         key = f"{identifier['system']}|{identifier['value']}"
         full_url = "urn:uuid:" + str(uuid.uuid5(NAMESPACE, f"{rtype}|{key}"))
@@ -73,13 +83,15 @@ class Builder:
             "source": f"urn:id:message/{self.msg.control_id}",
             "tag": [dict(SYNTHETIC_TAG)],
         }
-        url = (
-            f"{rtype}?identifier={quote(identifier['system'], safe='')}"
+        query = (
+            f"identifier={quote(identifier['system'], safe='')}"
             f"%7C{quote(identifier['value'], safe='')}"
         )
-        self.entries.append(
-            {"fullUrl": full_url, "resource": resource, "request": {"method": "PUT", "url": url}}
-        )
+        if create_only:  # create if missing, otherwise leave the stored resource untouched
+            request = {"method": "POST", "url": rtype, "ifNoneExist": query}
+        else:
+            request = {"method": "PUT", "url": f"{rtype}?{query}"}
+        self.entries.append({"fullUrl": full_url, "resource": resource, "request": request})
         return full_url
 
     def bundle(self) -> dict:
@@ -91,7 +103,9 @@ class Builder:
 GENDER = {"M": "male", "F": "female", "O": "other", "U": "unknown", "A": "other", "N": "other"}
 
 
-def build_patient(b: Builder) -> str:
+def build_patient(b: Builder, update: bool = False) -> str:
+    """Patient from PID. Only ADT (update=True) replaces a stored Patient; other message types
+    create it if it doesn't exist yet and otherwise just reference it."""
     pid = b.msg.first("PID")
     if pid is None:
         raise ConversionError("PID segment is required but missing")
@@ -130,7 +144,7 @@ def build_patient(b: Builder) -> str:
         patient["deceasedBoolean"] = True
     elif pid.get(30).upper() == "N":
         patient["deceasedBoolean"] = False
-    return b.add(patient, identifiers[0])
+    return b.add(patient, identifiers[0], create_only=not update)
 
 
 # ---- ADT -> Patient + Encounter --------------------------------------------------------------
@@ -145,7 +159,7 @@ ENCOUNTER_CLASS = {
 
 def convert_adt(b: Builder) -> None:
     msg = b.msg
-    patient_url = build_patient(b)
+    patient_url = build_patient(b, update=True)
     pv1 = msg.first("PV1")
     if pv1 is None:
         raise ConversionError("PV1 segment is required for ADT messages but missing")
@@ -442,7 +456,13 @@ def convert_oru(b: Builder) -> None:
         if obr.get(7):
             report["effectiveDateTime"] = b.ts(obr.get(7))
         if obr.get(22):
-            report["issued"] = b.ts(obr.get(22))
+            issued = b.ts(obr.get(22))
+            if issued and "T" in issued:
+                report["issued"] = issued
+            else:  # issued is a FHIR instant; a bare date would be rejected by the server
+                b.warnings.append(
+                    f"OBR-{set_id}: OBR-22 {obr.get(22)!r} has no time; issued omitted"
+                )
         if result_refs:
             report["result"] = result_refs
         if notes_for_report:
@@ -490,7 +510,7 @@ def convert_siu(b: Builder) -> None:
     end = sch.get(11, 1, 5) or ""
     appointment: dict = {"resourceType": "Appointment", "identifier": [ident], "status": status}
     if start:
-        appointment["start"] = b.ts(start)
+        appointment["start"] = b.instant(start, "SCH-11.4 (appointment start)")
     duration, unit = sch.get(9), sch.get(10, 1, 1).lower()
     if start and not end and duration:
         if unit.startswith(("min", "m")) and duration.isdigit():
@@ -502,7 +522,7 @@ def convert_siu(b: Builder) -> None:
         else:
             b.warnings.append(f"SCH-9/10 duration {duration!r} {unit!r} not understood; no end set")
     elif end:
-        appointment["end"] = b.ts(end)
+        appointment["end"] = b.instant(end, "SCH-11.5 (appointment end)")
     reason = parse_ce(sch, 7)
     if reason:
         appointment["reasonCode"] = [reason]

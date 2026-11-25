@@ -14,6 +14,12 @@ DATETIME = re.compile(
     r"(T([01]\d|2[0-3]):[0-5]\d:([0-5]\d|60)(\.\d+)?(Z|[+-]((0\d|1[0-3]):[0-5]\d|14:00)))?)?)?$"
 )
 
+# FHIR `instant`: always a full date, time and offset.
+INSTANT = re.compile(
+    r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:([0-5]\d|60)"
+    r"(\.\d+)?(Z|[+-]((0\d|1[0-3]):[0-5]\d|14:00))$"
+)
+
 ENUMS = {
     ("Patient", "gender"): {"male", "female", "other", "unknown"},
     ("Encounter", "status"): {
@@ -83,10 +89,11 @@ DATETIME_FIELDS = {
     "Patient": ["deceasedDateTime"],
     "Encounter": [],
     "Observation": ["effectiveDateTime", "valueDateTime"],
-    "DiagnosticReport": ["effectiveDateTime", "issued"],
-    "Appointment": ["start", "end"],
+    "DiagnosticReport": ["effectiveDateTime"],
+    "Appointment": [],
     "ServiceRequest": ["authoredOn"],
 }
+INSTANT_FIELDS = {"DiagnosticReport": ["issued"], "Appointment": ["start", "end"]}
 VALUE_KEYS = ("valueQuantity", "valueString", "valueCodeableConcept", "valueDateTime")
 
 
@@ -113,6 +120,11 @@ def _check_resource(res: dict, problems: list[str], where: str) -> None:
     for key in DATETIME_FIELDS.get(rtype, []):
         if key in res and not (isinstance(res[key], str) and DATETIME.match(res[key])):
             problems.append(f"{where}: {key}={res[key]!r} is not a valid FHIR dateTime")
+    for key in INSTANT_FIELDS.get(rtype, []):
+        if key in res and not (isinstance(res[key], str) and INSTANT.match(res[key])):
+            problems.append(
+                f"{where}: {key}={res[key]!r} is not a valid FHIR instant (needs time and offset)"
+            )
 
     def need(key: str) -> None:
         if not res.get(key):
@@ -190,12 +202,14 @@ def validate_bundle(bundle: dict) -> list[str]:
             problems.append(f"{where}: request.method and request.url are required")
         elif req["method"] not in ("PUT", "POST"):
             problems.append(f"{where}: request.method {req['method']!r} is not PUT or POST")
-        elif req["url"] in request_urls:
-            problems.append(
-                f"{where}: two entries use the same conditional URL {req['url']} "
-                "(a transaction cannot update one resource twice)"
-            )
-        request_urls.add(req.get("url", ""))
+        else:
+            target = req["url"] + ("?" + req["ifNoneExist"] if req.get("ifNoneExist") else "")
+            if target in request_urls:
+                problems.append(
+                    f"{where}: two entries use the same conditional URL {target} "
+                    "(a transaction cannot write one resource twice)"
+                )
+            request_urls.add(target)
         _check_resource(entry.get("resource", {}), problems, where)
     refs: list[str] = []
     _refs(entries, refs)

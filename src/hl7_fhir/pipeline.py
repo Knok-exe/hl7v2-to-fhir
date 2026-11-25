@@ -70,6 +70,26 @@ def post_bundle(
     raise PostError(last)
 
 
+def wait_for_server(
+    url: str, timeout: float, interval: float = 3.0, sleep=time.sleep, clock=time.monotonic
+) -> bool:
+    """Poll `<url>/metadata` until the FHIR server answers 200 or `timeout` seconds pass.
+
+    Used at listener start-up: a fresh HAPI container needs a minute or so before it accepts
+    requests, longer than the POST retry backoff covers."""
+    deadline = clock() + timeout
+    target = url.rstrip("/") + "/metadata"
+    while True:
+        try:
+            if requests.get(target, timeout=5).status_code == 200:
+                return True
+        except requests.exceptions.RequestException:
+            pass
+        if clock() >= deadline:
+            return False
+        sleep(interval)
+
+
 def _outcome_text(resp: requests.Response) -> str:
     try:
         body = resp.json()
@@ -189,4 +209,4 @@ def _guess_control_id(raw: str) -> str:
     return parts[9] if len(parts) > 9 else ""
 
 
-__all__ = ["Outcome", "ParseError", "Pipeline", "post_bundle"]
+__all__ = ["Outcome", "ParseError", "Pipeline", "post_bundle", "wait_for_server"]

@@ -49,10 +49,14 @@ hl7-fhir send examples/messages/adt_a01_admit.hl7
 curl "http://localhost:8080/fhir/Patient?identifier=100234"
 ```
 
-> **Status:** the Docker files were written but **not run** in the environment this was built
-> in (no Docker available). The `--post` path *is* tested against a local mock FHIR server,
-> including 4xx, 5xx-retry and unreachable cases. Treat the compose file as untested until you
-> have run it once. On Linux you may need to `chmod 777 out dead_letter` for the container user.
+HAPI takes a minute or so to start. The converter waits up to 180 s for HAPI's `/metadata`
+(`listen --wait 180`) before it starts listening, so the first `send` may need that long. Both
+ports are bound to `127.0.0.1` only.
+
+> **Status:** the Docker files have not been run end to end yet (no Docker where this was
+> built). The `--post` path *is* tested against a local mock FHIR server, including 4xx,
+> 5xx-retry and unreachable cases. On Linux you may need to `chmod 777 out dead_letter` for
+> the container user.
 
 ## What is supported
 

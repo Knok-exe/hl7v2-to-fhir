@@ -238,9 +238,13 @@ def parse_ce(seg: Segment, field_no: int, rep: int = 1) -> dict | None:
     return concept
 
 
+_DECIMAL = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)$")
+
+
 def parse_decimal(text: str) -> int | float:
-    try:
-        number = float(text)
-    except ValueError:
-        raise ConversionError(f"{text!r} is not a number") from None
-    return int(number) if number == int(number) and "." not in text else number
+    """HL7 NM: optional sign, digits, optional decimal point. Python's float() is looser (it
+    takes NaN, inf, 1e5 and 1_000), so the format is checked first."""
+    text = text.strip()
+    if not _DECIMAL.match(text):
+        raise ConversionError(f"{text!r} is not a number")
+    return int(text) if "." not in text else float(text)
